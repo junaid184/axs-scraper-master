@@ -2,6 +2,11 @@ import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import proxyChain from "proxy-chain";
 puppeteer.use(StealthPlugin);
+function delay(time) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, time);
+  });
+}
 (async () => {
   try {
     const oldProxyUrl = "http://OR1657325346:r2uyMQp1@208.194.204.241:7023";
@@ -13,7 +18,7 @@ puppeteer.use(StealthPlugin);
   const browser = await puppeteer.launch({
     headless: false,
     defaultViewpageort: null,
-    // args: [`--proxy-server=${oldProxyUrl}`],
+    args: ["--start-maximized"],
     executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
     userDataDir: "C:/Users/hp/AppData/Local/Google/Chrome/User Data/Default",
   });
