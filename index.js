@@ -1,6 +1,5 @@
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
-import proxyChain from "proxy-chain";
 puppeteer.use(StealthPlugin);
 function delay(time) {
   return new Promise(function (resolve) {
@@ -9,12 +8,6 @@ function delay(time) {
 }
 async function start() {
   try {
-    const oldProxyUrl = "http://OR1657325346:r2uyMQp1@208.194.204.241:7023";
-  const newProxyUrl = await proxyChain.anonymizeProxy(oldProxyUrl);
-
-  // Prints something like "http://127.0.0.1:45678"
-  console.log(newProxyUrl);
-
   const browser = await puppeteer.launch({
     headless: false,
     defaultViewpageort: null,
@@ -25,6 +18,7 @@ async function start() {
 
   // Do your magic here...
   const page = await browser.newPage();
+  await page.authenticate({'username':'OR1657325346', 'password': 'r2uyMQp1'});
   const { width, height } = await page.evaluate(() => {
     return {
       width: window.screen.width,
@@ -34,9 +28,9 @@ async function start() {
 
   // Set the viewport to the screen dimensions
   await page.setViewport({ width, height });
-  await page.authenticate({'username':'OR1657325346', 'password': 'r2uyMQp1'});
+  
   await page.goto(
-    "https://tix.axs.com/YOHNEQAAAAAkBto0AgAAAADz%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fDktlc3dpY2tUaGVhdHJlAP%2f%2f%2f%2f%2f%2f%2f%2f%2f%2f/shop/search?locale=en-US&axssid=csfo0suotsp1c3nuot4rifg8qj&originalReferringURL=https%3A%2F%2Fwww.axs.com%2Fevents%2F564913%2Fbob-the-drag-queen-tickets&preFill=1&eventid=564913&ec=KTP241010&src=AEGAXS1_WMAIN&skin=axs_keswick&fbShareURL=www.axs.com%2Fevents%2F564913%2Fbob-the-drag-queen-tickets%3F%26ref%3Devs_fb&_gl=1*14d1aly*_ga*OTUzMjQ4NDM5LjE3MTkzMjc5OTU.*_ga_D0FS4F37VT*MTcyMDE3OTkzMi4xMi4xLjE3MjAxODEwOTYuNDAuMC4w"
+    "https://tix.axs.com/WbURFAAAAAAReOaAAAAAAAAt%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBXRoZW1lAP%2f%2f%2f%2f%2f%2f%2f%2f%2f%2f/shop/search?locale=en-US&axssid=jmrl07urb0cofm0s1rgq3gvtec&originalReferringURL=https%3A%2F%2Fwww.axs.com%2F&preFill=1&eventid=577997&ec=ROS240720&src=AEGAXS1_WMAIN&fbShareURL=www.axs.com%2Fevents%2F577997%2Fcomedian-king-bach-tickets%3F%26ref%3Devs_fb&t_originalReferringURL=https%3A%2F%2Fwww.axs.com%2F&_gl=1*19n66uc*_ga*OTUzMjQ4NDM5LjE3MTkzMjc5OTU.*_ga_D0FS4F37VT*MTcyMDUzOTMzNi4xNy4xLjE3MjA1Mzk3MzkuNTkuMC4w"
   );
   await page.waitForSelector(`#main > div > div > div.layout > div > div > div > div > div > div > div > div > article > section > div.sc-gIEZMH.enjNBJ > div.sc-cQCQeq.fAGedl.seatmap-viewer > div > div.d2m-layers.d2m-content-layer.d2m-map-layer`)
   // Select the inner element using page.$eval
@@ -71,8 +65,6 @@ console.log("child elements: ",childElements.length);
   }
   // await browser.close();
 
-  // Clean up
-  // await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
   } catch (error) {
     console.log("error: ",error.message);
   }
