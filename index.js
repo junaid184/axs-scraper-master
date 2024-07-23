@@ -8,6 +8,27 @@ function delay(time) {
 }
 let seatData;
 let price;
+function findPrice(offerID, priceLevelID, offerData) {
+  // Loop through each offer
+  for (const offer of offerData) {
+    // Check if the current offer matches the offerID
+    
+    if (offer.offerID == offerID) {
+      // Loop through zonePrices to find the matching priceLevelID
+      for (const zonePrice of offer.zonePrices) {
+        
+        for (const priceLevel of zonePrice.priceLevels) {
+          if (priceLevel.priceLevelID === priceLevelID) {
+            // Return the price found
+            return priceLevel.prices[0].base; // Assuming there's only one price object
+          }
+        }
+      }
+    }
+  }
+  // If no price is found, return null or handle accordingly
+  return null;
+}
 async function start() {
   try {
     puppeteer
@@ -46,46 +67,52 @@ async function start() {
         );
         page.on("response", async (response) => {
           try {
-            if(price && seatData?.length > 0)
-            {
+            if (price && seatData?.length > 0) {
               browser.close();
-             
-              console.log("seatData:  ", seatData[0].items[0]);
+
+              console.log("seatData:  ", seatData[0].items[0])
+              const fetchedPrice = await findPrice(
+                seatData[0].items[0].offerID,
+                seatData[0].items[0].priceLevelID,
+                price.offerPrices
+              )
+              console.log(
+                "price: ",
+                fetchedPrice / 100
+              );
             }
             const url = response.url();
-    
+
             // Filter out OPTIONS requests
             if (!response.ok() || response.request().method() === "OPTIONS") {
               return;
             }
-    
+
             if (url.includes("/offer/search?flow=pick_a_seat_2d&utm_cid")) {
               console.log(url);
               const jsonResponse = await response.json();
               seatData = jsonResponse.offers;
               // console.log(`response:`, jsonResponse.offers[0].items[0]);
             }
-            if(url.includes("/price?excludeResaleTaxes=false&flow=pick_a_seat_2d&getSections=true&includeDynamicPrice=true&includeSoldOuts=false&locale=en-US&utm_cid"))
-            {
+            if (
+              url.includes(
+                "/price?excludeResaleTaxes=false&flow=pick_a_seat_2d&getSections=true&includeDynamicPrice=true&includeSoldOuts=false&locale=en-US&utm_cid"
+              )
+            ) {
               console.log(url);
               const jsonResponse = await response.json();
-              price = jsonResponse
+              price = jsonResponse;
             }
           } catch (error) {
             console.error("Error in response event handler:", error.message);
           }
-          
         });
-
       });
   } catch (error) {
     console.log("error: ", error.message);
   }
 }
-async function toGetData()
-{
+async function toGetData() {
   await start();
-  
 }
 toGetData();
-
