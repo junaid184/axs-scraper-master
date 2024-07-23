@@ -6,6 +6,8 @@ function delay(time) {
     setTimeout(resolve, time);
   });
 }
+let seatData;
+let price;
 async function start() {
   try {
     puppeteer
@@ -44,6 +46,12 @@ async function start() {
         );
         page.on("response", async (response) => {
           try {
+            if(price && seatData?.length > 0)
+            {
+              browser.close();
+             
+              console.log("seatData:  ", seatData[0].items[0]);
+            }
             const url = response.url();
     
             // Filter out OPTIONS requests
@@ -54,16 +62,30 @@ async function start() {
             if (url.includes("/offer/search?flow=pick_a_seat_2d&utm_cid")) {
               console.log(url);
               const jsonResponse = await response.json();
-              console.log(`response:`, jsonResponse.offers[0].items[0]);
+              seatData = jsonResponse.offers;
+              // console.log(`response:`, jsonResponse.offers[0].items[0]);
+            }
+            if(url.includes("/price?excludeResaleTaxes=false&flow=pick_a_seat_2d&getSections=true&includeDynamicPrice=true&includeSoldOuts=false&locale=en-US&utm_cid"))
+            {
+              console.log(url);
+              const jsonResponse = await response.json();
+              price = jsonResponse
             }
           } catch (error) {
             console.error("Error in response event handler:", error.message);
           }
           
         });
+
       });
   } catch (error) {
     console.log("error: ", error.message);
   }
 }
-start();
+async function toGetData()
+{
+  await start();
+  
+}
+toGetData();
+
