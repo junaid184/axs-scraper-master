@@ -1,6 +1,7 @@
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import proxies from "./settings/proxy.js";
+import proxyChain  from "proxy-chain";
 import userAgents from "./settings/userAgents.js";
 puppeteer.use(StealthPlugin);
 function delay(time) {
@@ -28,14 +29,24 @@ export default class PuppeteerActor {
       setTimeout(resolve, time);
     });
   };
-  setProxy = () => {
-    const p = proxies?.proxies;
+  setProxy = async () => {
+    try {
+      const p = proxies?.proxies;
     const random = Math.floor(Math.random() * p.length);
     this.proxy = p[random];
-
+    const oldProxyUrl = `http://${this.proxy.userName}:${this.proxy.password}@${this.proxy.proxy}:${this.proxy.port}`;
+    console.log(oldProxyUrl)
+    const newProxyUrl = await proxyChain.anonymizeProxy(oldProxyUrl);
+    this.proxy.proxy = newProxyUrl;
+    console.log(this.proxy.proxy);
     const agent = userAgents?.UserAgent;
     const randomAgent = Math.floor(Math.random() * agent.length);
     this.agent = agent[randomAgent];
+    console.log(`user agent: ${this.agent}`);
+    } catch (error) {
+      console.log('set proxy error: ', error)
+    }
+    
   };
   setData = async () => {
     try {
@@ -74,8 +85,8 @@ export default class PuppeteerActor {
           password: this.proxy.password,
         });
         await page.goto(this.url, {
-          waitUntil: "networkidle0",
-          timeout: 60000,
+         
+          timeout: 120000,
         });
         await this.delay(30000);
         const button = await page.$(

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import https from 'https'
 
-const BaseUrl = "https://alexbackend.cloud/api/";
+const BaseUrl = "https://frontrowtickets.cloud/api/";
 
 const httpsAgent = new https.Agent({
     rejectUnauthorized: false,
