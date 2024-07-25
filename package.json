@@ -36,6 +36,7 @@
     "babel-register": "^6.24.1",
     "bluebird": "^3.5.0",
     "cheerio": "^1.0.0-rc.1",
+    "https": "^1.0.0",
     "proxy-chain": "^2.5.1",
     "puppeteer": "^22.12.1",
     "puppeteer-extra": "^3.3.6",

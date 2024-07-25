@@ -54,8 +54,19 @@ export default class PuppeteerActor {
           waitUntil: "load",
           timeout: 0,
         });
+        const button = await page.$(`#POP_UP_MODAL > div > div > div.modal-main > div.modal-footer > div > div > button`);
+        if(button) // notice popup button click condition
+        {
+          await button.click();
+        }
+      const innerText = await page.evaluate(()=>{
+        const element = document.querySelector(`#main > div > div > div.layout > div > div > div > div > div > div > div > div > article > aside > div > section > div.sc-jRGJub.gpfqxZ > h1`);
+        return element ? element.innerText : null;
+      })
+      if(innerText === "Pick Your Tickets on Map") // map condition
+      {
         page.on("response", async (response) => {
-          try {
+          
             if (this.price && this.seatData?.length > 0) {
               await browser.close().then(async (x) => {
                 
@@ -84,10 +95,22 @@ export default class PuppeteerActor {
               const jsonResponse = await response.json();
               this.price = jsonResponse;
             }
-          } catch (error) {
-            console.error("Error in response event handler:", error);
-          }
+          
         });
+      }
+      const element = page.$(`div[class="sc-efNZxp cCzpTs"]`);
+      if(element) // tickets prices on left side condition
+      {
+        const elements = await page.$$('div[class="sc-efNZxp cCzpTs"]'); // Target exact class string
+
+        const allText = [];
+        for (const element of elements) {
+          const text = await element.innerText();
+          allText.push(text);
+        }
+      
+        console.log('Text for elements with class "sc-efNZxp cCzpTs":', allText);
+      }
         setTimeout(() => {
           browser.close();
           resolve(false);
