@@ -32,7 +32,8 @@ export async function getData(url) {
   return new Promise(async (resolve, reject) => {
     setTimeout(async () => {
       let headerSet = false;
-      while (headerSet === false) {
+      let attempts = 0;
+      while (headerSet === false && attempts < 3) {
         let _actor = new PuppeteerActor(
           url
         );
@@ -55,6 +56,7 @@ export async function getData(url) {
             headerSet = true;
           }
         }
+        attempts++;
       }
 
       if (headerSet == true) {
@@ -85,7 +87,10 @@ try {
       dataUserAgents.data.length > 0
     ) {
 
-    const events= ["https://tix.axs.com/vYAtIwAAAABUbxRFAwAAAACL%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBmNyeXB0bwD%2f%2f%2f%2f%2f%2f%2f%2f%2f%2fw%3d%3d/shop/search?q=00000000-0000-0000-0000-000000000000&p=2e09ac49-9990-463f-a989-0c9b4f93ede9&ts=1720718895&c=axs&e=5901846375512996123&rt=AfterEvent&h=5e58ead52755cea99a5081deb6353578"]
+    const events= [
+      // "https://tix.axs.com/vYAtIwAAAABUbxRFAwAAAACL%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBmNyeXB0bwD%2f%2f%2f%2f%2f%2f%2f%2f%2f%2fw%3d%3d/shop/search?q=00000000-0000-0000-0000-000000000000&p=2e09ac49-9990-463f-a989-0c9b4f93ede9&ts=1720718895&c=axs&e=5901846375512996123&rt=AfterEvent&h=5e58ead52755cea99a5081deb6353578",
+      "https://tix.axs.com/G7gZEgAAAABlZEiPAAAAAAAc%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBXRoZW1lAP%2f%2f%2f%2f%2f%2f%2f%2f%2f%2f/shop/search?locale=en-US&axssid=mmfl92dgtpkfk1dtbs7bm0j6b0&originalReferringURL=https%3A%2F%2Fwww.axs.com%2F&preFill=1&eventid=542323&ec=CCMH240802&src=AEGAXS1_WMAIN&fbShareURL=www.axs.com%2Fevents%2F542323%2Fkansas-21-event-tickets%3F%26ref%3Devs_fb&t_originalReferringURL=https%3A%2F%2Fwww.axs.com%2F&_gl=1*pcsngv*_gcl_au*MTE0MzExMDc3LjE3MjE5Mjg5OTU.*_ga*MjMxNjc5NTQ4LjE3MjE5Mjg5ODE.*_ga_D0FS4F37VT*MTcyMTkyODk4MS4xLjEuMTcyMTkyODk5NS40Ni4wLjA."
+    ]
     for (const url of events) {
      await getData(url);
     }

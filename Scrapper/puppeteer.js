@@ -64,6 +64,13 @@ export default class PuppeteerActor {
         await page.goto(this.url, { timeout: 1200000 });
 
         await delay(30000);
+        let captcha = await page.$(`#en-US > h2:nth-child(2)`);
+        if(captcha)
+        {
+          console.log(`captcha found`);
+          await browser.close();
+          return resolve(true);
+        }
         const button = await page.$(
           `#POP_UP_MODAL > div > div > div.modal-main > div.modal-footer > div > div > button`,
           { visible: true, timeout: 30000 }
@@ -73,7 +80,7 @@ export default class PuppeteerActor {
           await button.click();
         }
         const element = await page.$(`div[class="sc-efNZxp cCzpTs"]`);
-        console.log(element);
+        console.log("side tickets element: ", element);
         if (element) {
           // tickets prices on left side condition
           const elements = await page.$$('div[class="sc-efNZxp cCzpTs"]'); // Target exact class string
