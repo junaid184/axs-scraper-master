@@ -1,5 +1,7 @@
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import proxies from "./settings/proxy.js";
+import userAgents from "./settings/userAgents.js";
 puppeteer.use(StealthPlugin);
 function delay(time) {
   return new Promise(function (resolve) {
@@ -8,6 +10,8 @@ function delay(time) {
 }
 
 export default class PuppeteerActor {
+  proxy = null;
+  agent = null;
   price = null;
   seatData = null;
   url = null;
@@ -16,6 +20,7 @@ export default class PuppeteerActor {
   }
 
   start = async () => {
+    this.setProxy();
     return await this.setData();
   };
   delay = (time) => {
@@ -23,13 +28,28 @@ export default class PuppeteerActor {
       setTimeout(resolve, time);
     });
   };
+  setProxy = () => {
+    const p = proxies?.proxies;
+    const random = Math.floor(Math.random() * p.length);
+    this.proxy = p[random];
+
+    const agent = userAgents?.UserAgent;
+    const randomAgent = Math.floor(Math.random() * agent.length);
+    this.agent = agent[randomAgent];
+  };
   setData = async () => {
     try {
       let promise = new Promise(async (resolve, reject) => {
         const browser = await puppeteer.launch({
           headless: false,
           defaultViewpageort: null,
-          args: ["--start-maximized"],
+          args: [
+            "--start-maximized",
+            "--no-sandbox",
+            "--shm-size=1gb", // this solves the issue
+            "--proxy-server=" + this.proxy.proxy,
+            "--no-zygote",
+          ],
           executablePath:
             "C:/Program Files/Google/Chrome/Application/chrome.exe",
           userDataDir:
@@ -50,12 +70,12 @@ export default class PuppeteerActor {
         await page.setViewport({ width, height });
         await delay(1000);
         await page.authenticate({
-          username: "OR1657325346",
-          password: "r2uyMQp1",
+          username: this.proxy.username,
+          password: this.proxy.password,
         });
         await page.goto(this.url, {
-          waitUntil: "load",
-          timeout: 30000,
+          waitUntil: "networkidle0",
+          timeout: 60000,
         });
         await this.delay(30000);
         const button = await page.$(
@@ -127,8 +147,7 @@ export default class PuppeteerActor {
               browser.close();
               resolve(false);
             }, 40000);
-          }
-          else{
+          } else {
             await browser.close().then((x) => {
               return resolve(true);
             });
@@ -154,6 +173,13 @@ export default class PuppeteerActor {
   getSeatData = async () => {
     if (this.seatData) {
       return this.seatData;
+    } else {
+      return undefined;
+    }
+  };
+  getProxy = () => {
+    if (this.proxy != null) {
+      return this.proxy;
     } else {
       return undefined;
     }

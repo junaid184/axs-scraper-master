@@ -1,4 +1,13 @@
-import PuppeteerActor from "./puppeteer.js";
+import PuppeteerActor from "./Scrapper/puppeteer.js";
+import {
+  fetchAgents,
+  fetchProxies,
+  fetchScrapping,
+  postHeaders,
+  postSeats,
+} from "./Scrapper/API.js";
+import proxy from "./Scrapper/settings/proxy.js";
+import agent from "./Scrapper/settings/userAgents.js";
 let secTime = [60, 120, 140, 160, 170];
 export async function getData(url) {
   const findPrice = async (offerID, priceLevelID, offerData) => {
@@ -58,13 +67,31 @@ export async function getData(url) {
 try {
   const startPropgram = async () =>
   {
+    const { data: dataProxies, status: statusProxies } = await fetchProxies();
+    
+    if (statusProxies == 200) {
+      proxy.proxies = dataProxies.data;
+    }
+    //Getting UserAgents
+    const { data: dataUserAgents, status: statusAgents } = await fetchAgents();
+
+    if (statusAgents == 200) {
+      agent.UserAgent = dataUserAgents.data;
+    }
+    if (
+      statusAgents == 200 &&
+      statusProxies == 200 &&
+      dataProxies.data.length > 0 &&
+      dataUserAgents.data.length > 0
+    ) {
+
     const events= ["https://tix.axs.com/vYAtIwAAAABUbxRFAwAAAACL%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBmNyeXB0bwD%2f%2f%2f%2f%2f%2f%2f%2f%2f%2fw%3d%3d/shop/search?q=00000000-0000-0000-0000-000000000000&p=2e09ac49-9990-463f-a989-0c9b4f93ede9&ts=1720718895&c=axs&e=5901846375512996123&rt=AfterEvent&h=5e58ead52755cea99a5081deb6353578"]
     for (const url of events) {
      await getData(url);
     }
-    
+  }
   }
  startPropgram();
 } catch (e) {
-  console.log(e);
+  console.log("main error: ", e);
 }
