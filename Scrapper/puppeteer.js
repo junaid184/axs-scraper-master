@@ -65,8 +65,7 @@ export default class PuppeteerActor {
 
         await delay(30000);
         let captcha = await page.$(`#en-US > h2:nth-child(2)`);
-        if(captcha)
-        {
+        if (captcha) {
           console.log(`captcha found`);
           await browser.close();
           await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
