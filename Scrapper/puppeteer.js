@@ -69,6 +69,7 @@ export default class PuppeteerActor {
         {
           console.log(`captcha found`);
           await browser.close();
+          await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
           return resolve(true);
         }
         const button = await page.$(
