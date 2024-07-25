@@ -14,12 +14,15 @@ export default class PuppeteerActor {
   constructor(_url) {
     this.url = _url;
   }
-  
 
   start = async () => {
     return await this.setData();
   };
-
+  delay = (time) => {
+    return new Promise(function (resolve) {
+      setTimeout(resolve, time);
+    });
+  };
   setData = async () => {
     try {
       let promise = new Promise(async (resolve, reject) => {
@@ -47,74 +50,90 @@ export default class PuppeteerActor {
         await page.setViewport({ width, height });
         await delay(1000);
         await page.authenticate({
-          username: "hUcQAPJHOQ",
-          password: "A9uag6GWnY",
+          username: "OR1657325346",
+          password: "r2uyMQp1",
         });
         await page.goto(this.url, {
           waitUntil: "load",
-          timeout: 0,
+          timeout: 30000,
         });
-        const button = await page.$(`#POP_UP_MODAL > div > div > div.modal-main > div.modal-footer > div > div > button`);
-        if(button) // notice popup button click condition
-        {
+        await this.delay(30000);
+        const button = await page.$(
+          `#POP_UP_MODAL > div > div > div.modal-main > div.modal-footer > div > div > button`,
+          { visible: true, timeout: 30000 }
+        );
+        if (button) {
+          // notice popup button click condition
           await button.click();
         }
-      const innerText = await page.evaluate(()=>{
-        const element = document.querySelector(`#main > div > div > div.layout > div > div > div > div > div > div > div > div > article > aside > div > section > div.sc-jRGJub.gpfqxZ > h1`);
-        return element ? element.innerText : null;
-      })
-      if(innerText === "Pick Your Tickets on Map") // map condition
-      {
-        page.on("response", async (response) => {
-          
-            if (this.price && this.seatData?.length > 0) {
-              await browser.close().then(async (x) => {
-                
-                return resolve(true);
-              });
-            }
-            const url = response.url();
+        const element = await page.$(`div[class="sc-efNZxp cCzpTs"]`);
+        console.log(element);
+        if (element) {
+          // tickets prices on left side condition
+          const elements = await page.$$('div[class="sc-efNZxp cCzpTs"]'); // Target exact class string
 
-            // Filter out OPTIONS requests
-            if (!response.ok() || response.request().method() === "OPTIONS") {
-              return;
-            }
+          const allText = [];
+          for (const element of elements) {
+            const text = await element.innerText();
+            allText.push(text);
+          }
+          await browser.close().then(async (x) => {
+            return resolve(true);
+          });
+          console.log(
+            'Text for elements with class "sc-efNZxp cCzpTs":',
+            allText
+          );
+        } else {
+          const innerText = await page.evaluate(() => {
+            const element = document.querySelector(
+              `#main > div > div > div.layout > div > div > div > div > div > div > div > div > article > aside > div > section > div.sc-jRGJub.gpfqxZ > h1`
+            );
+            return element ? element.innerText : null;
+          });
+          console.log(`innert text of picking up ticket from map: `, innerText);
+          if (innerText === "Pick Your Tickets on Map") {
+            // map condition
+            page.on("response", async (response) => {
+              if (this.price && this.seatData?.length > 0) {
+                await browser.close().then(async (x) => {
+                  return resolve(true);
+                });
+              }
+              const url = response.url();
 
-            if (url.includes("/offer/search?flow=pick_a_seat_2d&utm_cid")) {
-              console.log(url);
-              const jsonResponse = await response.json();
-              this.seatData = jsonResponse.offers;
-              // console.log(`response:`, jsonResponse.offers[0].items[0]);
-            }
-            if (
-              url.includes(
-                "/price?excludeResaleTaxes=false&flow=pick_a_seat_2d&getSections=true&includeDynamicPrice=true&includeSoldOuts=false&locale=en-US&utm_cid"
-              )
-            ) {
-              console.log(url);
-              const jsonResponse = await response.json();
-              this.price = jsonResponse;
-            }
-          
-        });
-      }
-      const element = page.$(`div[class="sc-efNZxp cCzpTs"]`);
-      if(element) // tickets prices on left side condition
-      {
-        const elements = await page.$$('div[class="sc-efNZxp cCzpTs"]'); // Target exact class string
+              // Filter out OPTIONS requests
+              if (!response.ok() || response.request().method() === "OPTIONS") {
+                return;
+              }
 
-        const allText = [];
-        for (const element of elements) {
-          const text = await element.innerText();
-          allText.push(text);
+              if (url.includes("/offer/search?flow=pick_a_seat_2d&utm_cid")) {
+                console.log(url);
+                const jsonResponse = await response.json();
+                this.seatData = jsonResponse.offers;
+                // console.log(`response:`, jsonResponse.offers[0].items[0]);
+              }
+              if (
+                url.includes(
+                  "/price?excludeResaleTaxes=false&flow=pick_a_seat_2d&getSections=true&includeDynamicPrice=true&includeSoldOuts=false&locale=en-US&utm_cid"
+                )
+              ) {
+                console.log(url);
+                const jsonResponse = await response.json();
+                this.price = jsonResponse;
+              }
+            });
+            setTimeout(() => {
+              browser.close();
+              resolve(false);
+            }, 40000);
+          }
+          else{
+            await browser.close().then((x) => {
+              return resolve(true);
+            });
+          }
         }
-      
-        console.log('Text for elements with class "sc-efNZxp cCzpTs":', allText);
-      }
-        setTimeout(() => {
-          browser.close();
-          resolve(false);
-        }, 40000);
       });
       return promise;
     } catch (error) {
@@ -122,7 +141,6 @@ export default class PuppeteerActor {
       await browser.close().then((x) => {
         return resolve(false);
       });
-      return resolve(false);
     }
   };
 
