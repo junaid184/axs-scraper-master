@@ -1,9 +1,8 @@
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import proxies from "./settings/proxy.js";
-import proxyChain  from "proxy-chain";
+import proxyChain from "proxy-chain";
 import userAgents from "./settings/userAgents.js";
-puppeteer.use(StealthPlugin);
 function delay(time) {
   return new Promise(function (resolve) {
     setTimeout(resolve, time);
@@ -32,63 +31,39 @@ export default class PuppeteerActor {
   setProxy = async () => {
     try {
       const p = proxies?.proxies;
-    const random = Math.floor(Math.random() * p.length);
-    this.proxy = p[random];
-    const oldProxyUrl = `http://${this.proxy.userName}:${this.proxy.password}@${this.proxy.proxy}:${this.proxy.port}`;
-    console.log(oldProxyUrl)
-    const newProxyUrl = await proxyChain.anonymizeProxy(oldProxyUrl);
-    this.proxy.proxy = newProxyUrl;
-    console.log(this.proxy.proxy);
-    const agent = userAgents?.UserAgent;
-    const randomAgent = Math.floor(Math.random() * agent.length);
-    this.agent = agent[randomAgent];
-    console.log(`user agent: ${this.agent}`);
+      const random = Math.floor(Math.random() * p.length);
+      this.proxy = p[random];
+      const agent = userAgents?.UserAgent;
+      const randomAgent = Math.floor(Math.random() * agent.length);
+      this.agent = agent[randomAgent];
+      console.log(`user agent: ${this.agent}`);
     } catch (error) {
-      console.log('set proxy error: ', error)
+      console.log("set proxy error: ", error);
     }
-    
   };
   setData = async () => {
     try {
+      let newProxyUrl = await proxyChain.anonymizeProxy(
+        `http://${this.proxy.userName}:${this.proxy.password}@${this.proxy.proxy}:${this.proxy.port}`
+      );
       let promise = new Promise(async (resolve, reject) => {
+        puppeteer.use(StealthPlugin);
         const browser = await puppeteer.launch({
           headless: false,
-          defaultViewpageort: null,
-          args: [
-            "--start-maximized",
-            "--no-sandbox",
-            "--shm-size=1gb", // this solves the issue
-            "--proxy-server=" + this.proxy.proxy,
-            "--no-zygote",
-          ],
+          args: ["--proxy-server=" + newProxyUrl],
           executablePath:
             "C:/Program Files/Google/Chrome/Application/chrome.exe",
           userDataDir:
             "C:/Users/mohsi/AppData/Local/Google/Chrome/User Data/Default",
         });
-
-        // Do your magic here...
         const page = await browser.newPage();
-        //  await page.setUserAgent(`Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36`)
-        const { width, height } = await page.evaluate(() => {
-          return {
-            width: window.screen.width,
-            height: window.screen.height,
-          };
-        });
+        await page.setUserAgent(
+          `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36`
+        );
 
-        // Set the viewport to the screen dimensions
-        await page.setViewport({ width, height });
-        await delay(1000);
-        await page.authenticate({
-          username: this.proxy.username,
-          password: this.proxy.password,
-        });
-        await page.goto(this.url, {
-         
-          timeout: 120000,
-        });
-        await this.delay(30000);
+        await page.goto(this.url, { timeout: 1200000 });
+
+        await delay(30000);
         const button = await page.$(
           `#POP_UP_MODAL > div > div > div.modal-main > div.modal-footer > div > div > button`,
           { visible: true, timeout: 30000 }
@@ -108,13 +83,13 @@ export default class PuppeteerActor {
             const text = await element.innerText();
             allText.push(text);
           }
-          await browser.close().then(async (x) => {
-            return resolve(true);
-          });
+          await browser.close();
           console.log(
             'Text for elements with class "sc-efNZxp cCzpTs":',
             allText
           );
+          await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
+          return resolve(true);
         } else {
           const innerText = await page.evaluate(() => {
             const element = document.querySelector(
@@ -130,6 +105,8 @@ export default class PuppeteerActor {
                 await browser.close().then(async (x) => {
                   return resolve(true);
                 });
+
+                await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
               }
               const url = response.url();
 
@@ -157,20 +134,19 @@ export default class PuppeteerActor {
             setTimeout(() => {
               browser.close();
               resolve(false);
-            }, 40000);
+            }, 120000);
           } else {
             await browser.close().then((x) => {
               return resolve(true);
             });
+
+            await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
           }
         }
       });
       return promise;
     } catch (error) {
       console.log("error: ", error.message);
-      await browser.close().then((x) => {
-        return resolve(false);
-      });
     }
   };
 

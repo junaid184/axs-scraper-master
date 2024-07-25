@@ -70,9 +70,11 @@ class PuppeteerActor {
 
           await delay(120000);
 
+          await browser.close();
+
           await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
 
-          await browser.close();
+         
 
           return resolve(true);
         });
