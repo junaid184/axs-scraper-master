@@ -47,7 +47,6 @@ export default class PuppeteerActor {
       const agent = userAgents?.UserAgent;
       const randomAgent = Math.floor(Math.random() * agent.length);
       this.agent = agent[randomAgent];
-      console.log(`user agent: ${JSON.stringify(this.agent)}`);
     } catch (error) {
       console.log("set proxy error: ", error);
     }
@@ -136,8 +135,11 @@ export default class PuppeteerActor {
         await page.goto(this.url, { timeout: 1200000 });
 
         await delay(3000);
+      //  const title = await page.title();
+      //  console.log("title of the page: ",title);
+        
         let noValid = await page.$(
-          `#EXCEPTION_MESSAGE > div > div > div.modal-main > div.modal-body-wrapper > div > span > p`
+          `#EXCEPTION_MESSAGE > div > div > div.modal-main > div.modal-body-wrapper > div > span > p`, {visible: true}
         );
         if (noValid) {
           console.log(`no valid link`);
@@ -201,6 +203,7 @@ export default class PuppeteerActor {
           }
         });
         setTimeout(async () => {
+          console.log(`website is down`);
           await browser.close();
           await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
           resolve(false);
