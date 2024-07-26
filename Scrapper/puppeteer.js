@@ -68,9 +68,7 @@ export default class PuppeteerActor {
             "C:/Users/mohsi/AppData/Local/Google/Chrome/User Data/Default",
         });
         const page = await browser.newPage();
-        await page.setUserAgent(
-          this.agent.agent
-        );
+        await page.setUserAgent(this.agent.agent);
 
         await page.goto(this.url, { timeout: 1200000 });
         await delay(5000);
@@ -133,13 +131,20 @@ export default class PuppeteerActor {
             "C:/Users/mohsi/AppData/Local/Google/Chrome/User Data/Default",
         });
         const page = await browser.newPage();
-        await page.setUserAgent(
-          this.agent.agent
-        );
+        await page.setUserAgent(this.agent.agent);
 
         await page.goto(this.url, { timeout: 1200000 });
 
-        await delay(5000);
+        await delay(3000);
+        let noValid = await page.$(
+          `#EXCEPTION_MESSAGE > div > div > div.modal-main > div.modal-body-wrapper > div > span > p`
+        );
+        if (noValid) {
+          console.log(`no valid link`);
+          await browser.close();
+          await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
+          return resolve(false);
+        }
         let captcha = await page.$(`#en-US > h2:nth-child(2)`);
         if (captcha) {
           console.log(`captcha found`);
@@ -148,13 +153,19 @@ export default class PuppeteerActor {
           return resolve(false);
         }
         if (this.isModal) {
+          console.log(`on modal condition`);
+        
+          await page.waitForSelector(
+            "#POP_UP_MODAL > div > div > div.modal-main > div.modal-footer > div > div > button"
+          );
           const button = await page.$(
-            `#POP_UP_MODAL > div > div > div.modal-main > div.modal-footer > div > div > button`,
-            { visible: true, timeout: 30000 }
+            `#POP_UP_MODAL > div > div > div.modal-main > div.modal-footer > div > div > button`
           );
           if (button) {
+            console.log(`modal button found`);
             // notice popup button click condition
             await button.click();
+            console.log(`clicked on modal`);
           }
         }
         // map condition
@@ -189,11 +200,11 @@ export default class PuppeteerActor {
             this.price = jsonResponse;
           }
         });
-        setTimeout(() => {
-          browser.close();
+        setTimeout(async () => {
+          await browser.close();
+          await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
           resolve(false);
-        }, 60000);
-        await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
+        }, 40000);
       });
       return promise;
     } catch (error) {
