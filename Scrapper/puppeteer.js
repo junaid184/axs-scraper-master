@@ -69,7 +69,7 @@ export default class PuppeteerActor {
         });
         const page = await browser.newPage();
         await page.setUserAgent(
-          `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36`
+          this.agent.agent
         );
 
         await page.goto(this.url, { timeout: 1200000 });
@@ -79,7 +79,7 @@ export default class PuppeteerActor {
           console.log(`captcha found`);
           await browser.close();
           await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
-          return resolve(true);
+          return resolve(false);
         }
         await delay(20000);
         if (this.isModal) {
@@ -134,7 +134,7 @@ export default class PuppeteerActor {
         });
         const page = await browser.newPage();
         await page.setUserAgent(
-          `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36`
+          this.agent.agent
         );
 
         await page.goto(this.url, { timeout: 1200000 });
@@ -145,7 +145,7 @@ export default class PuppeteerActor {
           console.log(`captcha found`);
           await browser.close();
           await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
-          return resolve(true);
+          return resolve(false);
         }
         if (this.isModal) {
           const button = await page.$(

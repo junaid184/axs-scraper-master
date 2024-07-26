@@ -53,8 +53,9 @@ export async function getData(page) {
         );
         console.log("price: ", fetchedPrice / 100);
       }
+      return resolve(true);
     }
-    return resolve(true);
+    
   });
 }
 
