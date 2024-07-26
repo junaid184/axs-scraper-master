@@ -30,33 +30,31 @@ export async function getData(page) {
     return null;
   };
   return new Promise(async (resolve, reject) => {
-    setTimeout(async () => {
-      let _actor = new PuppeteerActor(
-        page.url,
-        page.isMap,
-        page.isModal,
-        page.isSideBar
-      );
+    let _actor = new PuppeteerActor(
+      page.url,
+      page.isMap,
+      page.isModal,
+      page.isSideBar
+    );
 
-      const dataGet = await _actor.start();
+    const dataGet = await _actor.start();
 
-      if (dataGet == true && page.isMap) {
-        let seatData = await _actor.getSeatData();
+    if (dataGet == true && page.isMap) {
+      let seatData = await _actor.getSeatData();
 
-        let priceData = await _actor.getPriceData();
+      let priceData = await _actor.getPriceData();
 
-        if (priceData && seatData) {
-          console.log("seatData:  ", seatData[0].items[0]);
-          const fetchedPrice = await findPrice(
-            seatData[0].items[0].offerID,
-            seatData[0].items[0].priceLevelID,
-            priceData.offerPrices
-          );
-          console.log("price: ", fetchedPrice / 100);
-        }
+      if (priceData && seatData) {
+        console.log("seatData:  ", seatData[0].items[0]);
+        const fetchedPrice = await findPrice(
+          seatData[0].items[0].offerID,
+          seatData[0].items[0].priceLevelID,
+          priceData.offerPrices
+        );
+        console.log("price: ", fetchedPrice / 100);
       }
-      return resolve(true);
-    }, 1000 * Math.floor(Math.random() * secTime.length));
+    }
+    return resolve(true);
   });
 }
 
