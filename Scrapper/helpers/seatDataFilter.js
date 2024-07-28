@@ -43,7 +43,6 @@ const mergByRows = async (items) => {
       }
       return a;
     }, []);
-    console.log(combineSeatsArray, "ye tw hoga");
     console.log("combine array: ", combineSeatsArray);
   } catch (error) {
     console.log("merging items from map seat error: " + error);
