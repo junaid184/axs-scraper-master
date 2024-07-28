@@ -51,7 +51,7 @@ export default class PuppeteerActor {
       console.log("set proxy error: ", error);
     }
   };
-  setDataFromSideBar = async () => {
+  setDataFromSideBar = async () => {  ///offers?onsaleID this is the end point to find the side bar data
     try {
       let newProxyUrl = await proxyChain.anonymizeProxy(
         `http://${this.proxy.userName}:${this.proxy.password}@${this.proxy.proxy}:${this.proxy.port}`
