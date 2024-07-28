@@ -43,7 +43,7 @@ const mergByRows = async (items) => {
       }
       return a;
     }, []);
-    console.log("combine array: ", combineSeatsArray);
+    return combineSeatsArray;
   } catch (error) {
     console.log("merging items from map seat error: " + error);
   }
@@ -82,5 +82,7 @@ export const sendMapInventoryData = async (seatData, priceData) => {
   const dataWithPrice = await attatchMapPriceOnSeat(finalSeatData, priceData);
 
   const mergedData = await mergByRows(dataWithPrice);
+
+  console.log(mergedData);
   //send post request to inventory API
 };
