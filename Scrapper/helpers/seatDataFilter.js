@@ -31,37 +31,20 @@ const fetchingItemsFromMapSeat = async (data) => {
 };
 const mergByRows = async (items) => {
   try {
-    const groupSeats = items.reduce((acc, item) => {
-      const key = `${item.sectionID}-${item.rowID}`;
-      if (!acc[key]) {
-        acc[key] = [];
+    const combineSeatsArray = items.reduce((a, c) => {
+      const key = a.find(
+        (x) => x.sectionID === c.sectionID && x.rowID === c.rowID
+      );
+      if (key) {
+        key.seat = `${key.seat},${c.seat}`;
+        key.price = key.price + c.price;
+      } else {
+        a.push(c);
       }
-      acc[key].push(item);
-
-      return acc;
-    }, {});
-
-    const groupedSeatsArray = Object.values(groupSeats).flat();
-    const combinedSeats = groupedSeatsArray.reduce((acc, seat) => {
-      if (seat) {
-        const key = seat.rowLabel;
-        if (!acc[key]) {
-          acc[key] = {
-            sectionLabel: seat.sectionLabel,
-            rowLabel: seat.rowLabel,
-            seats: [seat.number],
-            // price: seat.price,
-          };
-        } else {
-          if (!acc[key].seats.includes(seat.number)) {
-            acc[key].seats.push(seat.number);
-          }
-        }
-        return acc;
-      }
-    }, {});
-    const combinedSeatsArray = Object.values(combinedSeats);
-    console.log("combine array: ", combinedSeatsArray);
+      return a;
+    }, []);
+    console.log(combineSeatsArray, "ye tw hoga");
+    console.log("combine array: ", combineSeatsArray);
   } catch (error) {
     console.log("merging items from map seat error: " + error);
   }
