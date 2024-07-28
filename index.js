@@ -9,6 +9,7 @@ import {
 import proxy from "./Scrapper/settings/proxy.js";
 import agent from "./Scrapper/settings/userAgents.js";
 import {sendMapInventoryData} from "./Scrapper/helpers/seatDataFilter.js";
+import { sendInventory } from "./Scrapper/helpers/seatDataFilterSidebar.js";
 export async function getData(page) {
   
   return new Promise(async (resolve, reject) => {
@@ -30,6 +31,15 @@ export async function getData(page) {
         await sendMapInventoryData(seatData, priceData.offerPrices); 
       }
       
+    }
+    if(dataGet == true && page.isSideBar)
+    {
+      let seatData = await _actor.getSeatData();
+      if(seatData)
+      {
+     
+        await sendInventory(seatData);
+      }
     }
     return resolve(true);
   });
@@ -56,6 +66,12 @@ try {
     ) {
       const events = [
         {
+          url: "https://tix.axs.com/qyNwCQAAAACD0Y5%2fAAAAAAB4%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBXRoZW1lAP%2f%2f%2f%2f%2f%2f%2f%2f%2f%2f/shop/marketplace?locale=en-US&axssid=9ov7mknoohe4idgnliqpc9o55g&originalReferringURL=https%3A%2F%2Fwww.axs.com%2Fbrowse%2Fsports&preFill=1&eventid=513854&src=AEGAXS1_WMAIN&fbShareURL=www.axs.com%2Fevents%2F513854%2Fsan-diego-padres-at-baltimore-orioles-tickets%3F%26ref%3Devs_fb&t_originalReferringURL=https%3A%2F%2Fwww.axs.com%2F&_gl=1*1rz81p7*_gcl_au*MTQ2MTg3MTY0LjE3MjIxODAwMjk.*_ga*NzQ0OTY2NzI4LjE3MjIxODAwNzM.*_ga_D0FS4F37VT*MTcyMjE4MTYyMC4xLjEuMTcyMjE4MTgzNS4zOS4wLjA.",
+          isMap: false,
+          isModal: false,
+          isSideBar: true,
+        },
+        {
           url: "https://tix.axs.com/vYAtIwAAAABUbxRFAwAAAACL%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBmNyeXB0bwD%2f%2f%2f%2f%2f%2f%2f%2f%2f%2fw%3d%3d/shop/search?q=00000000-0000-0000-0000-000000000000&p=2e09ac49-9990-463f-a989-0c9b4f93ede9&ts=1720718895&c=axs&e=5901846375512996123&rt=AfterEvent&h=5e58ead52755cea99a5081deb6353578",
           isModal: false,
           isSideBar: false,
@@ -67,24 +83,6 @@ try {
           isSideBar: false,
           isMap: true,
         },
-        {
-          url: "https://tix.axs.com/G7gZEgAAAABlZEiPAAAAAAAc%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBXRoZW1lAP%2f%2f%2f%2f%2f%2f%2f%2f%2f%2f/shop/search?locale=en-US&axssid=mmfl92dgtpkfk1dtbs7bm0j6b0&originalReferringURL=https%3A%2F%2Fwww.axs.com%2F&preFill=1&eventid=542323&ec=CCMH240802&src=AEGAXS1_WMAIN&fbShareURL=www.axs.com%2Fevents%2F542323%2Fkansas-21-event-tickets%3F%26ref%3Devs_fb&t_originalReferringURL=https%3A%2F%2Fwww.axs.com%2F&_gl=1*pcsngv*_gcl_au*MTE0MzExMDc3LjE3MjE5Mjg5OTU.*_ga*MjMxNjc5NTQ4LjE3MjE5Mjg5ODE.*_ga_D0FS4F37VT*MTcyMTkyODk4MS4xLjEuMTcyMTkyODk5NS40Ni4wLjA.",
-          isMap: true,
-          isModal: true,
-          isSideBar: false,
-        },
-        {
-          url: "https://tix.axs.com/G7gZEgAAAAAyX%2bqOAAAAAACj%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBXRoZW1lAP%2f%2f%2f%2f%2f%2f%2f%2f%2f%2f/shop/search?skin=&tags=&cpch=&cpdate=&cpcn=&cpsrc=&intoff=&cid=&utm_source=&utm_medium=&utm_campaign=&utm_term=&utm_content=&aff=&clickref=&q=00000000-0000-0000-0000-000000000000&p=2a6951d9-9f9a-4007-8940-0e9e659a9682&ts=1722181624&c=axs&e=3036754199366111&rt=AfterEvent&h=b8677ace0112a57b3667efee5bf0e1d2",
-          isMap: true,
-          isModal: true,
-          isSideBar: false,
-        },
-        {
-          url: "https://tix.axs.com/qyNwCQAAAACD0Y5%2fAAAAAAB4%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBXRoZW1lAP%2f%2f%2f%2f%2f%2f%2f%2f%2f%2f/shop/marketplace?locale=en-US&axssid=9ov7mknoohe4idgnliqpc9o55g&originalReferringURL=https%3A%2F%2Fwww.axs.com%2Fbrowse%2Fsports&preFill=1&eventid=513854&src=AEGAXS1_WMAIN&fbShareURL=www.axs.com%2Fevents%2F513854%2Fsan-diego-padres-at-baltimore-orioles-tickets%3F%26ref%3Devs_fb&t_originalReferringURL=https%3A%2F%2Fwww.axs.com%2F&_gl=1*1rz81p7*_gcl_au*MTQ2MTg3MTY0LjE3MjIxODAwMjk.*_ga*NzQ0OTY2NzI4LjE3MjIxODAwNzM.*_ga_D0FS4F37VT*MTcyMjE4MTYyMC4xLjEuMTcyMjE4MTgzNS4zOS4wLjA.",
-          isMap: false,
-          isModal: false,
-          isSideBar: true,
-        }
       ];
       for (const page of events) {
         await getData(page);

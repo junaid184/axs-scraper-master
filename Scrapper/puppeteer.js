@@ -70,7 +70,18 @@ export default class PuppeteerActor {
         await page.setUserAgent(this.agent.agent);
 
         await page.goto(this.url, { timeout: 1200000 });
-        await delay(5000);
+
+        await delay(3000);
+        
+        let noValid = await page.$(
+          `#EXCEPTION_MESSAGE > div > div > div.modal-main > div.modal-body-wrapper > div > span > p`, {visible: true}
+        );
+        if (noValid) {
+          console.log(`no valid link`);
+          await browser.close();
+          await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
+          return resolve(false);
+        }
         let captcha = await page.$(`#en-US > h2:nth-child(2)`);
         if (captcha) {
           console.log(`captcha found`);
@@ -78,39 +89,54 @@ export default class PuppeteerActor {
           await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
           return resolve(false);
         }
-        await delay(20000);
         if (this.isModal) {
+          console.log(`on modal condition`);
+        
+          await page.waitForSelector(
+            "#POP_UP_MODAL > div > div > div.modal-main > div.modal-footer > div > div > button"
+          );
           const button = await page.$(
-            `#POP_UP_MODAL > div > div > div.modal-main > div.modal-footer > div > div > button`,
-            { visible: true, timeout: 30000 }
+            `#POP_UP_MODAL > div > div > div.modal-main > div.modal-footer > div > div > button`
           );
           if (button) {
+            console.log(`modal button found`);
             // notice popup button click condition
             await button.click();
+            console.log(`clicked on modal`);
           }
         }
-        const element = await page.$(`div[class="sc-efNZxp cCzpTs"]`);
-        console.log("side tickets element: ", element);
-        if (element) {
-          // tickets prices on left side condition
-          const elements = await page.$$('div[class="sc-efNZxp cCzpTs"]'); // Target exact class string
+        // map condition
+        page.on("response", async (response) => {
+          if (this.seatData?.length > 0) {
+            await browser.close().then(async (x) => {
+              return resolve(true);
+            });
 
-          const allText = [];
-          for (const element of elements) {
-            const text = await element.innerText();
-            allText.push(text);
+            await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
           }
+          const url = response.url();
+
+          // Filter out OPTIONS requests
+          if (!response.ok() || response.request().method() === "OPTIONS") {
+            return;
+          }
+
+          if (url.includes("/offers?onsaleID")) {
+            console.log(url);
+            const jsonResponse = await response.json();
+            this.seatData = jsonResponse.offers;
+            // console.log(`response:`, jsonResponse.offers[0].items[0]);
+          }
+        });
+        setTimeout(async () => {
+          console.log(`website is down`);
           await browser.close();
-          console.log(
-            'Text for elements with class "sc-efNZxp cCzpTs":',
-            allText
-          );
           await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
-          return resolve(true);
-        }
+          resolve(false);
+        }, 40000);
       });
       return promise;
-    } catch (error) {
+    }catch (error) {
       console.log("set data from side bar error: ", error);
     }
   };
