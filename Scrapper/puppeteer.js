@@ -72,7 +72,7 @@ export default class PuppeteerActor {
         await page.goto(this.url, { timeout: 1200000 });
 
         await delay(3000);
-        
+
         let noValid = await page.$(
           `#EXCEPTION_MESSAGE > div > div > div.modal-main > div.modal-body-wrapper > div > span > p`, {visible: true}
         );
@@ -124,7 +124,7 @@ export default class PuppeteerActor {
           if (url.includes("/offers?onsaleID")) {
             console.log(url);
             const jsonResponse = await response.json();
-            this.seatData = jsonResponse.offers;
+            this.seatData = jsonResponse.listings;
             // console.log(`response:`, jsonResponse.offers[0].items[0]);
           }
         });
