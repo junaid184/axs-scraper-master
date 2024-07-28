@@ -33,7 +33,7 @@ const mergByRows = async (items) => {
   try {
     const combineSeatsArray = items.reduce((a, c) => {
       const key = a.find(
-        (x) => x.sectionID === c.sectionID && x.rowID === c.rowID
+        (x) => x.sectionLabel === c.sectionLabel && x.rowLabel === c.rowLabel
       );
       if (key) {
         key.number = `${key.number},${c.number}`;
