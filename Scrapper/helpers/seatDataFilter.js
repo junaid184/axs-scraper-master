@@ -36,7 +36,7 @@ const mergByRows = async (items) => {
         (x) => x.sectionID === c.sectionID && x.rowID === c.rowID
       );
       if (key) {
-        key.seat = `${key.seat},${c.seat}`;
+        key.number = `${key.number},${c.number}`;
         key.price = key.price + c.price;
       } else {
         a.push(c);
@@ -84,5 +84,5 @@ export const sendMapInventoryData = async (seatData, priceData) => {
   const mergedData = await mergByRows(dataWithPrice);
 
   console.log(mergedData);
-  //send post request to inventory API
+  //TODO: send post request to inventory API
 };
