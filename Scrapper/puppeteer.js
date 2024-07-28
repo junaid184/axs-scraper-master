@@ -51,189 +51,158 @@ export default class PuppeteerActor {
       console.log("set proxy error: ", error);
     }
   };
-  setDataFromSideBar = async () => {  ///offers?onsaleID this is the end point to find the side bar data
+  puppeteerStart = async (proxy, resolve) => {
     try {
-      let newProxyUrl = await proxyChain.anonymizeProxy(
-        `http://${this.proxy.userName}:${this.proxy.password}@${this.proxy.proxy}:${this.proxy.port}`
+      puppeteer.use(StealthPlugin);
+      const browser = await puppeteer.launch({
+        headless: false,
+        args: ["--proxy-server=" + proxy],
+        executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
+        userDataDir:
+          "C:/Users/mohsi/AppData/Local/Google/Chrome/User Data/Default",
+      });
+      const page = await browser.newPage();
+      await page.setUserAgent(this.agent.agent);
+
+      await page.goto(this.url, { timeout: 1200000 });
+
+      await delay(3000);
+
+      let noValid = await page.$(
+        `#EXCEPTION_MESSAGE > div > div > div.modal-main > div.modal-body-wrapper > div > span > p`,
+        { visible: true }
       );
-      let promise = new Promise(async (resolve, reject) => {
-        puppeteer.use(StealthPlugin);
-        const browser = await puppeteer.launch({
-          headless: false,
-          args: ["--proxy-server=" + newProxyUrl],
-          executablePath:
-            "C:/Program Files/Google/Chrome/Application/chrome.exe",
-          userDataDir:
-            "C:/Users/mohsi/AppData/Local/Google/Chrome/User Data/Default",
-        });
-        const page = await browser.newPage();
-        await page.setUserAgent(this.agent.agent);
+      if (noValid) {
+        console.log(`no valid link`);
+        await browser.close();
+        await proxyChain.closeAnonymizedProxy(proxy, true);
+        return false;
+      }
+      let captcha = await page.$(`#en-US > h2:nth-child(2)`);
+      if (captcha) {
+        console.log(`captcha found`);
+        await browser.close();
+        await proxyChain.closeAnonymizedProxy(proxy, true);
+        return false;
+      }
+      if (this.isModal) {
+        console.log(`on modal condition`);
 
-        await page.goto(this.url, { timeout: 1200000 });
-
-        await delay(3000);
-
-        let noValid = await page.$(
-          `#EXCEPTION_MESSAGE > div > div > div.modal-main > div.modal-body-wrapper > div > span > p`, {visible: true}
+        await page.waitForSelector(
+          "#POP_UP_MODAL > div > div > div.modal-main > div.modal-footer > div > div > button"
         );
-        if (noValid) {
-          console.log(`no valid link`);
-          await browser.close();
-          await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
-          return resolve(false);
+        const button = await page.$(
+          `#POP_UP_MODAL > div > div > div.modal-main > div.modal-footer > div > div > button`
+        );
+        if (button) {
+          console.log(`modal button found`);
+          // notice popup button click condition
+          await button.click();
+          console.log(`clicked on modal`);
         }
-        let captcha = await page.$(`#en-US > h2:nth-child(2)`);
-        if (captcha) {
-          console.log(`captcha found`);
-          await browser.close();
-          await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
-          return resolve(false);
-        }
-        if (this.isModal) {
-          console.log(`on modal condition`);
-        
-          await page.waitForSelector(
-            "#POP_UP_MODAL > div > div > div.modal-main > div.modal-footer > div > div > button"
-          );
-          const button = await page.$(
-            `#POP_UP_MODAL > div > div > div.modal-main > div.modal-footer > div > div > button`
-          );
-          if (button) {
-            console.log(`modal button found`);
-            // notice popup button click condition
-            await button.click();
-            console.log(`clicked on modal`);
-          }
-        }
+      }
+
+      return { page, browser };
+    } catch (error) {
+      console.log("error at starting puppeteer: ", error);
+    }
+  };
+  setDataFromSideBar = async () => {
+    ///offers?onsaleID this is the end point to find the side bar data
+    try {
+      let promise = new Promise(async (resolve, reject) => {
+        let newProxyUrl = await proxyChain.anonymizeProxy(
+          `http://${this.proxy.userName}:${this.proxy.password}@${this.proxy.proxy}:${this.proxy.port}`
+        );
+        const page = await this.puppeteerStart(newProxyUrl);
         // map condition
-        page.on("response", async (response) => {
-          if (this.seatData?.length > 0) {
-            await browser.close().then(async (x) => {
-              return resolve(true);
-            });
+        if (!page) {
+          return resolve(false);
+        } else {
+          page.page.on("response", async (response) => {
+            if (this.seatData?.length > 0) {
+              await browser.close().then(async (x) => {
+                return resolve(true);
+              });
 
+              await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
+            }
+            const url = response.url();
+
+            // Filter out OPTIONS requests
+            if (!response.ok() || response.request().method() === "OPTIONS") {
+              return;
+            }
+
+            if (url.includes("/offers?onsaleID")) {
+              console.log(url);
+              const jsonResponse = await response.json();
+              this.seatData = jsonResponse.listings;
+              // console.log(`response:`, jsonResponse.offers[0].items[0]);
+            }
+          });
+          setTimeout(async () => {
+            console.log(`website is down`);
+            await page.browser.close();
             await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
-          }
-          const url = response.url();
-
-          // Filter out OPTIONS requests
-          if (!response.ok() || response.request().method() === "OPTIONS") {
-            return;
-          }
-
-          if (url.includes("/offers?onsaleID")) {
-            console.log(url);
-            const jsonResponse = await response.json();
-            this.seatData = jsonResponse.listings;
-            // console.log(`response:`, jsonResponse.offers[0].items[0]);
-          }
-        });
-        setTimeout(async () => {
-          console.log(`website is down`);
-          await browser.close();
-          await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
-          resolve(false);
-        }, 40000);
+            resolve(false);
+          }, 40000);
+        }
       });
       return promise;
-    }catch (error) {
+    } catch (error) {
       console.log("set data from side bar error: ", error);
     }
   };
   setDataFromMap = async () => {
     try {
-      let newProxyUrl = await proxyChain.anonymizeProxy(
-        `http://${this.proxy.userName}:${this.proxy.password}@${this.proxy.proxy}:${this.proxy.port}`
-      );
       let promise = new Promise(async (resolve, reject) => {
-        puppeteer.use(StealthPlugin);
-        const browser = await puppeteer.launch({
-          headless: false,
-          args: ["--proxy-server=" + newProxyUrl],
-          executablePath:
-            "C:/Program Files/Google/Chrome/Application/chrome.exe",
-          userDataDir:
-            "C:/Users/mohsi/AppData/Local/Google/Chrome/User Data/Default",
-        });
-        const page = await browser.newPage();
-        await page.setUserAgent(this.agent.agent);
-
-        await page.goto(this.url, { timeout: 1200000 });
-
-        await delay(3000);
-      //  const title = await page.title();
-      //  console.log("title of the page: ",title);
-        
-        let noValid = await page.$(
-          `#EXCEPTION_MESSAGE > div > div > div.modal-main > div.modal-body-wrapper > div > span > p`, {visible: true}
+        let newProxyUrl = await proxyChain.anonymizeProxy(
+          `http://${this.proxy.userName}:${this.proxy.password}@${this.proxy.proxy}:${this.proxy.port}`
         );
-        if (noValid) {
-          console.log(`no valid link`);
-          await browser.close();
-          await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
-          return resolve(false);
-        }
-        let captcha = await page.$(`#en-US > h2:nth-child(2)`);
-        if (captcha) {
-          console.log(`captcha found`);
-          await browser.close();
-          await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
-          return resolve(false);
-        }
-        if (this.isModal) {
-          console.log(`on modal condition`);
-        
-          await page.waitForSelector(
-            "#POP_UP_MODAL > div > div > div.modal-main > div.modal-footer > div > div > button"
-          );
-          const button = await page.$(
-            `#POP_UP_MODAL > div > div > div.modal-main > div.modal-footer > div > div > button`
-          );
-          if (button) {
-            console.log(`modal button found`);
-            // notice popup button click condition
-            await button.click();
-            console.log(`clicked on modal`);
-          }
-        }
+        const page = await this.puppeteerStart(newProxyUrl);
         // map condition
-        page.on("response", async (response) => {
-          if (this.price && this.seatData?.length > 0) {
-            await browser.close().then(async (x) => {
-              return resolve(true);
-            });
+        if (!page) {
+          return resolve(false);
+        } else {
+          page.page.on("response", async (response) => {
+            if (this.price && this.seatData?.length > 0) {
+              await browser.close().then(async (x) => {
+                return resolve(true);
+              });
 
+              await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
+            }
+            const url = response.url();
+
+            // Filter out OPTIONS requests
+            if (!response.ok() || response.request().method() === "OPTIONS") {
+              return;
+            }
+
+            if (url.includes("/offer/search?flow=pick_a_seat_2d&utm_cid")) {
+              console.log(url);
+              const jsonResponse = await response.json();
+              this.seatData = jsonResponse.offers;
+              // console.log(`response:`, jsonResponse.offers[0].items[0]);
+            }
+            if (
+              url.includes(
+                "/price?excludeResaleTaxes=false&flow=pick_a_seat_2d&getSections=true&includeDynamicPrice=true&includeSoldOuts=false&locale=en-US&utm_cid"
+              )
+            ) {
+              console.log(url);
+              const jsonResponse = await response.json();
+              this.price = jsonResponse;
+            }
+          });
+          setTimeout(async () => {
+            console.log(`website is down`);
+            await page.browser.close();
             await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
-          }
-          const url = response.url();
-
-          // Filter out OPTIONS requests
-          if (!response.ok() || response.request().method() === "OPTIONS") {
-            return;
-          }
-
-          if (url.includes("/offer/search?flow=pick_a_seat_2d&utm_cid")) {
-            console.log(url);
-            const jsonResponse = await response.json();
-            this.seatData = jsonResponse.offers;
-            // console.log(`response:`, jsonResponse.offers[0].items[0]);
-          }
-          if (
-            url.includes(
-              "/price?excludeResaleTaxes=false&flow=pick_a_seat_2d&getSections=true&includeDynamicPrice=true&includeSoldOuts=false&locale=en-US&utm_cid"
-            )
-          ) {
-            console.log(url);
-            const jsonResponse = await response.json();
-            this.price = jsonResponse;
-          }
-        });
-        setTimeout(async () => {
-          console.log(`website is down`);
-          await browser.close();
-          await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
-          resolve(false);
-        }, 40000);
+            resolve(false);
+          }, 40000);
+        }
       });
       return promise;
     } catch (error) {
@@ -251,13 +220,6 @@ export default class PuppeteerActor {
   getSeatData = async () => {
     if (this.seatData) {
       return this.seatData;
-    } else {
-      return undefined;
-    }
-  };
-  getProxy = () => {
-    if (this.proxy != null) {
-      return this.proxy;
     } else {
       return undefined;
     }

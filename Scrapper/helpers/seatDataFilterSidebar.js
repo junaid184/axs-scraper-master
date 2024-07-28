@@ -1,6 +1,6 @@
 export const sendInventory = async (data)=>{
     try {
-        console.log(data); 
+        console.log(data, "side barr data successfull"); 
         
         //TODO: send the inventory to API
     } catch (error) {
