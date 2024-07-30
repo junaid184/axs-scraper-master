@@ -67,7 +67,7 @@ try {
       const events = [
         {
           url: "https://tix.axs.com/qyNwCQAAAABeEG%2bHAAAAAAAK%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBXRoZW1lAP%2f%2f%2f%2f%2f%2f%2f%2f%2f%2f/shop/marketplace?locale=en-US&axssid=6a1f7ep4t13bk5j6p1uid0a67j&originalReferringURL=https%3A%2F%2Fwww.axs.com%2Fbrowse%2Fmusic&preFill=1&eventid=565502&src=AEGAXS1_WMAIN&fbShareURL=www.axs.com%2Fevents%2F565502%2Fnico-vega-tickets%3F%26ref%3Devs_fb&t_originalReferringURL=https%3A%2F%2Fwww.axs.com%2F&_gl=1*1s8f871*_gcl_au*MTE0MzExMDc3LjE3MjE5Mjg5OTU.*_ga*MjMxNjc5NTQ4LjE3MjE5Mjg5ODE.*_ga_D0FS4F37VT*MTcyMjM1MDkzMi4zLjEuMTcyMjM1NDA0Ny4xNS4wLjA.",
-          isModal: true,
+          isModal: false,
           isSideBar: true,
           isMap: false,
         },
