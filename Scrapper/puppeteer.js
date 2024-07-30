@@ -207,7 +207,7 @@ export default class PuppeteerActor {
             }
           });
           setTimeout(async () => {
-            console.log(`website is down`);
+            
             await page.browser.close();
             await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
             priceData = this.price;
@@ -219,6 +219,7 @@ export default class PuppeteerActor {
             }
             else
             {
+              console.log(`website is down`);
               resolve(false);
             }
             
