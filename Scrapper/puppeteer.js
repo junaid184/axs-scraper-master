@@ -90,6 +90,7 @@ export default class PuppeteerActor {
       {
         await browser.close();
         await proxyChain.closeAnonymizedProxy(proxy, true);
+        console.log(`ticket is not available`);
         return false;
       }
       if (this.isModal) {
