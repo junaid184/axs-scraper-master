@@ -17,7 +17,8 @@ export async function getData(page) {
       page.url,
       page.isMap,
       page.isModal,
-      page.isSideBar
+      page.isSideBar,
+      page.isPage
     );
 
     const dataGet = await _actor.start();
@@ -40,6 +41,10 @@ export async function getData(page) {
      
         await sendInventory(seatData);
       }
+    }
+    if(dataGet == true&& page.isPage)
+    {
+      let data = await _actor.setDataFromPage();
     }
     return resolve(true);
   });
@@ -65,17 +70,24 @@ try {
       dataUserAgents.data.length > 0
     ) {
       const events = [
+        // {
+        //   url: "https://tix.axs.com/qyNwCQAAAABeEG%2bHAAAAAAAK%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBXRoZW1lAP%2f%2f%2f%2f%2f%2f%2f%2f%2f%2f/shop/marketplace?locale=en-US&axssid=6a1f7ep4t13bk5j6p1uid0a67j&originalReferringURL=https%3A%2F%2Fwww.axs.com%2Fbrowse%2Fmusic&preFill=1&eventid=565502&src=AEGAXS1_WMAIN&fbShareURL=www.axs.com%2Fevents%2F565502%2Fnico-vega-tickets%3F%26ref%3Devs_fb&t_originalReferringURL=https%3A%2F%2Fwww.axs.com%2F&_gl=1*1s8f871*_gcl_au*MTE0MzExMDc3LjE3MjE5Mjg5OTU.*_ga*MjMxNjc5NTQ4LjE3MjE5Mjg5ODE.*_ga_D0FS4F37VT*MTcyMjM1MDkzMi4zLjEuMTcyMjM1NDA0Ny4xNS4wLjA.",
+        //   isModal: false,
+        //   isSideBar: true,
+        //   isMap: false,
+        // },
+        // {
+        //   url: "https://tix.axs.com/vYAtIwAAAABUbxRFAwAAAACL%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBmNyeXB0bwD%2f%2f%2f%2f%2f%2f%2f%2f%2f%2fw%3d%3d/shop/search?q=00000000-0000-0000-0000-000000000000&p=2e09ac49-9990-463f-a989-0c9b4f93ede9&ts=1720718895&c=axs&e=5901846375512996123&rt=AfterEvent&h=5e58ead52755cea99a5081deb6353578",
+        //   isModal: false,
+        //   isSideBar: false,
+        //   isMap: true,
+        // },
         {
-          url: "https://tix.axs.com/qyNwCQAAAABeEG%2bHAAAAAAAK%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBXRoZW1lAP%2f%2f%2f%2f%2f%2f%2f%2f%2f%2f/shop/marketplace?locale=en-US&axssid=6a1f7ep4t13bk5j6p1uid0a67j&originalReferringURL=https%3A%2F%2Fwww.axs.com%2Fbrowse%2Fmusic&preFill=1&eventid=565502&src=AEGAXS1_WMAIN&fbShareURL=www.axs.com%2Fevents%2F565502%2Fnico-vega-tickets%3F%26ref%3Devs_fb&t_originalReferringURL=https%3A%2F%2Fwww.axs.com%2F&_gl=1*1s8f871*_gcl_au*MTE0MzExMDc3LjE3MjE5Mjg5OTU.*_ga*MjMxNjc5NTQ4LjE3MjE5Mjg5ODE.*_ga_D0FS4F37VT*MTcyMjM1MDkzMi4zLjEuMTcyMjM1NDA0Ny4xNS4wLjA.",
-          isModal: false,
-          isSideBar: true,
-          isMap: false,
-        },
-        {
-          url: "https://tix.axs.com/vYAtIwAAAABUbxRFAwAAAACL%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBmNyeXB0bwD%2f%2f%2f%2f%2f%2f%2f%2f%2f%2fw%3d%3d/shop/search?q=00000000-0000-0000-0000-000000000000&p=2e09ac49-9990-463f-a989-0c9b4f93ede9&ts=1720718895&c=axs&e=5901846375512996123&rt=AfterEvent&h=5e58ead52755cea99a5081deb6353578",
-          isModal: false,
+          url: "https://tix.axs.com/OBd3FAAAAAAikceTAwAAAABh%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fA2F4cwD%2f%2f%2f%2f%2f%2f%2f%2f%2f%2fw%3d%3d?skin=&tags=&cpch=&cpdate=&cprid=&cpid=&cpcn=&cpdid=&cpdn=&cpsrc=&intoff=&cid=&utm_source=&utm_medium=&utm_campaign=&utm_term=&utm_content=&aff=&clickref=&q=00000000-0000-0000-0000-000000000000&p=19f91949-9d96-4ede-8988-1092a1985e4a&ts=1722357370&c=axs&e=34334904860016529&rt=AfterEvent&h=bb2b3d8faa2af35ac016877719d8b88e",
+          isModal: true,
           isSideBar: false,
-          isMap: true,
+          isMap: false,
+          isPage: true,
         }
       ];
       for (const page of events) {

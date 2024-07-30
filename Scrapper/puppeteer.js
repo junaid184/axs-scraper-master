@@ -18,11 +18,13 @@ export default class PuppeteerActor {
   isMap = null;
   isSideBar = null;
   isModal = null;
-  constructor(_url, isMap, isModal, isSideBar) {
+  isPage = null;
+  constructor(_url, isMap, isModal, isSideBar, isPage) {
     this.url = _url;
     this.isMap = isMap;
     this.isModal = isModal;
     this.isSideBar = isSideBar;
+    this.isPage = isPage;
   }
 
   start = async () => {
@@ -32,6 +34,10 @@ export default class PuppeteerActor {
     }
     if (this.isSideBar) {
       return await this.setDataFromSideBar();
+    }
+    if(this.isPage)
+    {
+      return await this.setDataFromPage();
     }
   };
   delay = (time) => {
@@ -85,9 +91,10 @@ export default class PuppeteerActor {
         await proxyChain.closeAnonymizedProxy(proxy, true);
         return false;
       }
-      let notAvailable = await page.$(`#main > div > div > div > div.page-wrapper.page-wrapper--external-flow > div > div > div > div > div > div > div > h1`);
-      if(notAvailable)
-      {
+      let notAvailable = await page.$(
+        `#main > div > div > div > div.page-wrapper.page-wrapper--external-flow > div > div > div > div > div > div > div > h1`
+      );
+      if (notAvailable) {
         await browser.close();
         await proxyChain.closeAnonymizedProxy(proxy, true);
         console.log(`ticket is not available`);
@@ -113,6 +120,70 @@ export default class PuppeteerActor {
       return { page, browser };
     } catch (error) {
       console.log("error at starting puppeteer: ", error);
+      return false;
+    }
+  };
+  setDataFromPage = async () => {
+    try {
+      let promise = new Promise(async (resolve, reject) => {
+        let newProxyUrl = await proxyChain.anonymizeProxy(
+          `http://${this.proxy.userName}:${this.proxy.password}@${this.proxy.proxy}:${this.proxy.port}`
+        );
+        const page = await this.puppeteerStart(newProxyUrl);
+        // map condition
+        if (!page) {
+          return resolve(false);
+        } else {
+          const ticketsLimit = await page.page.evaluate(() => {
+            // Select the element
+            const element = document.querySelector(
+              "#main > div > div > div > div > div > div > div > div > div > div > div > div.sidebar.reservation.col-md-5.col-xs-12 > div > div:nth-child(3) > div > div.module.module--number-of-tickets > div:nth-child(2) > div > div.module__title--subtitle > span"
+            );
+            // Return the innerText of the element
+            return element ? element.innerText : null;
+          });
+
+          const data = await page.page.evaluate(() => {
+            // Select all elements with the class 'price-level'
+            const priceLevels = document.querySelectorAll(
+            'div[class="price-level-container"]'
+            );
+            // Initialize an array to hold the extracted data
+            const results = [];
+
+            // Iterate over each price-level element
+            priceLevels.forEach((priceLevel) => {
+              // Extract the text from .price-range and .radio-inline within this price-level
+              const priceRange =
+                priceLevel.querySelector('div[class="price-range"]')?.innerText.trim() ||
+                "";
+              const radioInline =
+                priceLevel.querySelector('label[class="radio-inline"]')?.innerText.trim() ||
+                "";
+
+              // Push the extracted data as an object into the results array
+              results.push({
+                priceRange,
+                radioInline,
+              });
+            });
+
+            // Return the results array
+            return results;
+          });
+
+          console.log("data from page: ", data); // Print the array of objects to the console
+          
+          // Close the browser
+          await page.browser.close();
+          resolve(true);
+          console.log(`ticket limit: ${ticketsLimit}`);
+          return {data, ticketsLimit};
+        }
+      });
+      return promise
+    } catch (e) {
+      console.log(`error from the page: `, e)
     }
   };
   setDataFromSideBar = async () => {
@@ -207,22 +278,17 @@ export default class PuppeteerActor {
             }
           });
           setTimeout(async () => {
-            
             await page.browser.close();
             await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
             priceData = this.price;
             seatDataLocal = this.seatData;
 
-            if(priceData && seatDataLocal.length > 0)
-            {
+            if (priceData && seatDataLocal.length > 0) {
               resolve(true);
-            }
-            else
-            {
+            } else {
               console.log(`website is down`);
               resolve(false);
             }
-            
           }, 40000);
         }
       });
