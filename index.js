@@ -76,13 +76,7 @@ try {
           isModal: false,
           isSideBar: false,
           isMap: true,
-        },
-        {
-          url: "https://tix.axs.com/WbURFAAAAAAd%2bLiAAAAAAACT%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBXRoZW1lAP%2f%2f%2f%2f%2f%2f%2f%2f%2f%2f/shop/search?locale=en-US&axssid=9ov7mknoohe4idgnliqpc9o55g&originalReferringURL=https%3A%2F%2Fwww.axs.com%2F&preFill=1&eventid=559969&ec=ROS240808&src=AEGAXS1_WMAIN&fbShareURL=www.axs.com%2Fevents%2F559969%2Fdonavon-frankenreiter-w-twam-tickets%3F%26ref%3Devs_fb&t_originalReferringURL=https%3A%2F%2Fwww.axs.com%2F&_gl=1*gabxa9*_gcl_au*MTQ2MTg3MTY0LjE3MjIxODAwMjk.*_ga*NzQ0OTY2NzI4LjE3MjIxODAwNzM.*_ga_D0FS4F37VT*MTcyMjE4MTYyMC4xLjEuMTcyMjE4MTY4OC41Mi4wLjA.",
-          isModal: false,
-          isSideBar: false,
-          isMap: true,
-        },
+        }
       ];
       for (const page of events) {
         await getData(page);
