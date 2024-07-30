@@ -66,10 +66,10 @@ try {
     ) {
       const events = [
         {
-          url: "https://tix.axs.com/qyNwCQAAAACD0Y5%2fAAAAAAB4%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBXRoZW1lAP%2f%2f%2f%2f%2f%2f%2f%2f%2f%2f/shop/marketplace?locale=en-US&axssid=9ov7mknoohe4idgnliqpc9o55g&originalReferringURL=https%3A%2F%2Fwww.axs.com%2Fbrowse%2Fsports&preFill=1&eventid=513854&src=AEGAXS1_WMAIN&fbShareURL=www.axs.com%2Fevents%2F513854%2Fsan-diego-padres-at-baltimore-orioles-tickets%3F%26ref%3Devs_fb&t_originalReferringURL=https%3A%2F%2Fwww.axs.com%2F&_gl=1*1rz81p7*_gcl_au*MTQ2MTg3MTY0LjE3MjIxODAwMjk.*_ga*NzQ0OTY2NzI4LjE3MjIxODAwNzM.*_ga_D0FS4F37VT*MTcyMjE4MTYyMC4xLjEuMTcyMjE4MTgzNS4zOS4wLjA.",
-          isMap: false,
+          url: "https://tix.axs.com/qyNwCQAAAABeEG%2bHAAAAAAAK%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBXRoZW1lAP%2f%2f%2f%2f%2f%2f%2f%2f%2f%2f/shop/marketplace?locale=en-US&axssid=6a1f7ep4t13bk5j6p1uid0a67j&originalReferringURL=https%3A%2F%2Fwww.axs.com%2Fbrowse%2Fmusic&preFill=1&eventid=565502&src=AEGAXS1_WMAIN&fbShareURL=www.axs.com%2Fevents%2F565502%2Fnico-vega-tickets%3F%26ref%3Devs_fb&t_originalReferringURL=https%3A%2F%2Fwww.axs.com%2F&_gl=1*1s8f871*_gcl_au*MTE0MzExMDc3LjE3MjE5Mjg5OTU.*_ga*MjMxNjc5NTQ4LjE3MjE5Mjg5ODE.*_ga_D0FS4F37VT*MTcyMjM1MDkzMi4zLjEuMTcyMjM1NDA0Ny4xNS4wLjA.",
           isModal: false,
           isSideBar: true,
+          isMap: false,
         },
         {
           url: "https://tix.axs.com/vYAtIwAAAABUbxRFAwAAAACL%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fBmNyeXB0bwD%2f%2f%2f%2f%2f%2f%2f%2f%2f%2fw%3d%3d/shop/search?q=00000000-0000-0000-0000-000000000000&p=2e09ac49-9990-463f-a989-0c9b4f93ede9&ts=1720718895&c=axs&e=5901846375512996123&rt=AfterEvent&h=5e58ead52755cea99a5081deb6353578",

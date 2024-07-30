@@ -129,7 +129,7 @@ export default class PuppeteerActor {
         } else {
           page.page.on("response", async (response) => {
             if (this.seatData?.length > 0) {
-              await browser.close().then(async (x) => {
+              await page.browser.close().then(async (x) => {
                 return resolve(true);
               });
 
@@ -173,6 +173,8 @@ export default class PuppeteerActor {
         if (!page) {
           return resolve(false);
         } else {
+          let priceData;
+          let seatDataLocal;
           page.page.on("response", async (response) => {
             if (this.price && this.seatData?.length > 0) {
               await page.browser.close().then(async (x) => {
@@ -208,7 +210,18 @@ export default class PuppeteerActor {
             console.log(`website is down`);
             await page.browser.close();
             await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
-            resolve(false);
+            priceData = this.price;
+            seatDataLocal = this.seatData;
+
+            if(priceData && seatDataLocal.length > 0)
+            {
+              resolve(true);
+            }
+            else
+            {
+              resolve(false);
+            }
+            
           }, 40000);
         }
       });
