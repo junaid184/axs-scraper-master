@@ -85,6 +85,13 @@ export default class PuppeteerActor {
         await proxyChain.closeAnonymizedProxy(proxy, true);
         return false;
       }
+      let notAvailable = await page.$(`#main > div > div > div > div.page-wrapper.page-wrapper--external-flow > div > div > div > div > div > div > div > h1`);
+      if(notAvailable)
+      {
+        await browser.close();
+        await proxyChain.closeAnonymizedProxy(proxy, true);
+        return false;
+      }
       if (this.isModal) {
         console.log(`on modal condition`);
 
@@ -167,7 +174,7 @@ export default class PuppeteerActor {
         } else {
           page.page.on("response", async (response) => {
             if (this.price && this.seatData?.length > 0) {
-              await browser.close().then(async (x) => {
+              await page.browser.close().then(async (x) => {
                 return resolve(true);
               });
 
