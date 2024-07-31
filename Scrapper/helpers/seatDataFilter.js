@@ -1,3 +1,4 @@
+import fs from 'fs';
 const findPrice = async (offerID, priceLevelID, offerData) => {
   for (const offer of offerData) {
     // Check if the current offer matches the offerID
@@ -85,4 +86,12 @@ export const sendMapInventoryData = async (seatData, priceData) => {
 
   console.log(mergedData);
   //TODO: send post request to inventory API
+  fs.writeFile(`mapData.json`, JSON.stringify(mergedData,null, 2), (err) =>{
+    if(err)
+      {
+        console.error('Error writing file:', err);
+      } else {
+        console.log('File successfully written!');
+      }
+  });
 };
