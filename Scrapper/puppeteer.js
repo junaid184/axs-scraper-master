@@ -19,6 +19,7 @@ export default class PuppeteerActor {
   isSideBar = null;
   isModal = null;
   isPage = null;
+  pageData = null;
   constructor(_url, isMap, isModal, isSideBar, isPage) {
     this.url = _url;
     this.isMap = isMap;
@@ -57,7 +58,7 @@ export default class PuppeteerActor {
     }
   };
   puppeteerStart = async (proxy, resolve) => {
-    try {
+    
       puppeteer.use(StealthPlugin);
       const browser = await puppeteer.launch({
         headless: false,
@@ -66,6 +67,7 @@ export default class PuppeteerActor {
         userDataDir:
           "C:/Users/mohsi/AppData/Local/Google/Chrome/User Data/Default",
       });
+      try{
       const page = await browser.newPage();
       await page.setUserAgent(this.agent.agent);
 
@@ -115,24 +117,35 @@ export default class PuppeteerActor {
           console.log(`clicked on modal`);
         }
       }
-
+      let refresh = await page.$(`#SESSION_EXPIRED > div > div > div.modal-main > div.modal-body-wrapper > div > div > div > button`);
+      if(refresh)
+      {
+        refresh.click();
+        await delay(3000);
+      }
       return { page, browser };
     } catch (error) {
       console.log("error at starting puppeteer: ", error);
+      await browser.close();
       return false;
     }
   };
   setDataFromPage = async () => {
-    try {
-      let promise = new Promise(async (resolve, reject) => {
-        let newProxyUrl = await proxyChain.anonymizeProxy(
-          `http://${this.proxy.userName}:${this.proxy.password}@${this.proxy.proxy}:${this.proxy.port}`
-        );
-        const page = await this.puppeteerStart(newProxyUrl);
+    let promise = new Promise(async (resolve, reject) => {
+      let newProxyUrl = await proxyChain.anonymizeProxy(
+        `http://${this.proxy.userName}:${this.proxy.password}@${this.proxy.proxy}:${this.proxy.port}`
+      );
+      const page = await this.puppeteerStart(newProxyUrl);
+      try {
+        
         // map condition
         if (!page) {
           return resolve(false);
         } else {
+          await page.page.waitForSelector(
+            `#main > div > div > div > div > div > div > div > div > div > div > div > div.sidebar.reservation.col-md-5.col-xs-12 > div > div:nth-child(3) > div > div.module.module--number-of-tickets > div:nth-child(2) > div > div.module__title--subtitle > span`
+          );
+
           const ticketsLimit = await page.page.evaluate(() => {
             // Select the element
             const element = document.querySelector(
@@ -141,9 +154,12 @@ export default class PuppeteerActor {
             // Return the innerText of the element
             return element ? element.innerText : null;
           });
-
+          await page.page.waitForSelector(`div[class="price-level-container"]`);
+          await page.page.waitForSelector(`span[class="price-range"]`);
+          await page.page.waitForSelector(`label[class="radio-inline"]`);
           const data = await page.page.evaluate(() => {
             // Select all elements with the class 'price-level'
+            
             const priceLevels = document.querySelectorAll(
               'div[class="price-level-container"]'
             );
@@ -155,7 +171,7 @@ export default class PuppeteerActor {
               // Extract the text from .price-range and .radio-inline within this price-level
               const priceRange =
                 priceLevel
-                  .querySelector('div[class="price-range"]')
+                  .querySelector('span[class="price-range"]')
                   ?.innerText.trim() || "";
               const radioInline =
                 priceLevel
@@ -173,19 +189,24 @@ export default class PuppeteerActor {
             return results;
           });
 
-          console.log("data from page: ", data); // Print the array of objects to the console
+          
 
           // Close the browser
           await page.browser.close();
+          await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
           resolve(true);
           console.log(`ticket limit: ${ticketsLimit}`);
-          return { data, ticketsLimit };
+          data && ticketsLimit ? this.pageData =  { data, ticketsLimit } : this.pageData = null;
         }
-      });
-      return promise;
-    } catch (e) {
-      console.log(`error from the page: `, e);
-    }
+       
+      } catch (error) {
+        console.log(`error from setting data from page: ${error}`);
+        await page.browser.close();
+        await proxyChain.closeAnonymizedProxy(newProxyUrl, true);
+        resolve(false);
+      }
+    });
+    return promise;
   };
   setDataFromSideBar = async () => {
     ///offers?onsaleID this is the end point to find the side bar data
@@ -313,4 +334,13 @@ export default class PuppeteerActor {
       return undefined;
     }
   };
+  getDataFromPage = async () =>{
+    if(this.pageData)
+    {
+      return this.pageData;
+    }
+    else{
+      return undefined;
+    }
+  }
 }
