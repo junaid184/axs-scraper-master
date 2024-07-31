@@ -39,7 +39,13 @@ export async function getData(page) {
     }
     if (dataGet == true && page.isPage) {
       let data = await _actor.getDataFromPage();
+
       console.log(data);
+
+      if(data)
+      {
+        // TODO:  send inventory
+      }
     }
     return resolve(true);
   });
