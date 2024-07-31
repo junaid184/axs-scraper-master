@@ -35,8 +35,7 @@ export default class PuppeteerActor {
     if (this.isSideBar) {
       return await this.setDataFromSideBar();
     }
-    if(this.isPage)
-    {
+    if (this.isPage) {
       return await this.setDataFromPage();
     }
   };
@@ -146,7 +145,7 @@ export default class PuppeteerActor {
           const data = await page.page.evaluate(() => {
             // Select all elements with the class 'price-level'
             const priceLevels = document.querySelectorAll(
-            'div[class="price-level-container"]'
+              'div[class="price-level-container"]'
             );
             // Initialize an array to hold the extracted data
             const results = [];
@@ -155,11 +154,13 @@ export default class PuppeteerActor {
             priceLevels.forEach((priceLevel) => {
               // Extract the text from .price-range and .radio-inline within this price-level
               const priceRange =
-                priceLevel.querySelector('div[class="price-range"]')?.innerText.trim() ||
-                "";
+                priceLevel
+                  .querySelector('div[class="price-range"]')
+                  ?.innerText.trim() || "";
               const radioInline =
-                priceLevel.querySelector('label[class="radio-inline"]')?.innerText.trim() ||
-                "";
+                priceLevel
+                  .querySelector('label[class="radio-inline"]')
+                  ?.innerText.trim() || "";
 
               // Push the extracted data as an object into the results array
               results.push({
@@ -173,17 +174,17 @@ export default class PuppeteerActor {
           });
 
           console.log("data from page: ", data); // Print the array of objects to the console
-          
+
           // Close the browser
           await page.browser.close();
           resolve(true);
           console.log(`ticket limit: ${ticketsLimit}`);
-          return {data, ticketsLimit};
+          return { data, ticketsLimit };
         }
       });
-      return promise
+      return promise;
     } catch (e) {
-      console.log(`error from the page: `, e)
+      console.log(`error from the page: `, e);
     }
   };
   setDataFromSideBar = async () => {

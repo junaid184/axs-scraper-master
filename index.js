@@ -8,10 +8,9 @@ import {
 } from "./Scrapper/API.js";
 import proxy from "./Scrapper/settings/proxy.js";
 import agent from "./Scrapper/settings/userAgents.js";
-import {sendMapInventoryData} from "./Scrapper/helpers/seatDataFilter.js";
+import { sendMapInventoryData } from "./Scrapper/helpers/seatDataFilter.js";
 import { sendInventory } from "./Scrapper/helpers/seatDataFilterSidebar.js";
 export async function getData(page) {
-  
   return new Promise(async (resolve, reject) => {
     let _actor = new PuppeteerActor(
       page.url,
@@ -29,21 +28,16 @@ export async function getData(page) {
       let priceData = await _actor.getPriceData();
 
       if (priceData && seatData) {
-        await sendMapInventoryData(seatData, priceData.offerPrices); 
+        await sendMapInventoryData(seatData, priceData.offerPrices);
       }
-      
     }
-    if(dataGet == true && page.isSideBar)
-    {
+    if (dataGet == true && page.isSideBar) {
       let seatData = await _actor.getSeatData();
-      if(seatData)
-      {
-     
+      if (seatData) {
         await sendInventory(seatData);
       }
     }
-    if(dataGet == true&& page.isPage)
-    {
+    if (dataGet == true && page.isPage) {
       let data = await _actor.setDataFromPage();
     }
     return resolve(true);
@@ -88,7 +82,7 @@ try {
           isSideBar: false,
           isMap: false,
           isPage: true,
-        }
+        },
       ];
       for (const page of events) {
         await getData(page);
