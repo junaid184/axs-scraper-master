@@ -66,7 +66,7 @@ try {
     ) {
       const events = [
         {
-          url: "https://tix.axs.com/OBd3FAAAAAAikceTAwAAAABh%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fA2F4cwD%2f%2f%2f%2f%2f%2f%2f%2f%2f%2fw%3d%3d?skin=&tags=&cpch=&cpdate=&cprid=&cpid=&cpcn=&cpdid=&cpdn=&cpsrc=&intoff=&cid=&utm_source=&utm_medium=&utm_campaign=&utm_term=&utm_content=&aff=&clickref=&q=00000000-0000-0000-0000-000000000000&p=fce91449-9294-489a-892a-3898e1907823&ts=1722423619&c=axs&e=34334904860016529&rt=AfterEvent&h=938b99d08cb3eee74029dca2a195a2a1",
+          url: "https://tix.axs.com/OBd3FAAAAAAikceTAwAAAABh%2fv%2f%2f%2fwD%2f%2f%2f%2f%2fA2F4cwD%2f%2f%2f%2f%2f%2f%2f%2f%2f%2fw%3d%3d?skin=&tags=&cpch=&cpdate=&cprid=&cpid=&cpcn=&cpdid=&cpdn=&cpsrc=&intoff=&cid=&utm_source=&utm_medium=&utm_campaign=&utm_term=&utm_content=&aff=&clickref=&q=00000000-0000-0000-0000-000000000000&p=6d192599-9492-468f-a939-6e9b1c9fa83d&ts=1722435177&c=axs&e=34334904860016529&rt=AfterEvent&h=4031a8b220b1f9f71e08327f3fe8f756",
           isModal: true,
           isSideBar: false,
           isMap: false,
