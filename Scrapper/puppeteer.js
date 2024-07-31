@@ -63,9 +63,9 @@ export default class PuppeteerActor {
       const browser = await puppeteer.launch({
         headless: false,
         args: ["--proxy-server=" + proxy],
-        executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
-        userDataDir:
-          "C:/Users/mohsi/AppData/Local/Google/Chrome/User Data/Default",
+        // executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
+        // userDataDir:
+        //   "C:/Users/mohsi/AppData/Local/Google/Chrome/User Data/Default",
       });
       try{
       const page = await browser.newPage();
